@@ -56,15 +56,15 @@ Find the Elf carrying the most Calories. How many total Calories is that Elf car
 
 --- Part Two ---
 
-By the time you calculate the answer to the Elves' question, they've already realized that
+By the time you calculate the answer to the Elves' question, they've already realized that 
 the Elf carrying the most Calories of food might eventually run out of snacks.
 
 To avoid this unacceptable situation, the Elves would instead like to know the total Calories
 carried by the top three Elves carrying the most Calories. That way, even if one of those Elves
 runs out of snacks, they still have two backups.
 
-In the example above, the top three Elves are the fourth Elf (with 24000 Calories),
-then the third Elf (with 11000 Calories), then the fifth Elf (with 10000 Calories).
+In the example above, the top three Elves are the fourth Elf (with 24000 Calories), 
+then the third Elf (with 11000 Calories), then the fifth Elf (with 10000 Calories). 
 The sum of the Calories carried by these three elves is 45000.
 
 Find the top three Elves carrying the most Calories. How many Calories are those Elves carrying in total?
@@ -76,31 +76,11 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 )
-
-// IntMaxHeap is a max heap of ints
-type IntMaxHeap []int
-
-func (h IntMaxHeap) Len() int           { return len(h) }
-func (h IntMaxHeap) Less(i, j int) bool { return h[i] > h[j] }
-func (h IntMaxHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *IntMaxHeap) Push(x any) {
-	*h = append(*h, x.(int))
-}
-
-func (h *IntMaxHeap) Pop() any {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
-}
 
 func updateMaxCalories(calories int, maxCalories *int) {
 	if calories > *maxCalories {
@@ -152,26 +132,17 @@ func updateTop3(calories int, maxCalories *[3]int) {
 	}
 }
 
-func getTopKSum(h *IntMaxHeap, k int) int {
-	var sum int = 0
-	for i := 0; i < k; i++ {
-		sum += heap.Pop(h).(int)
-	}
-	return sum
-}
-
-func topKCaloriesSum(file *os.File, k int) int {
+func getTopThreeCalories(file *os.File) [3]int {
 	scanner := bufio.NewScanner(file)
 
-	// Use a max heap to keep track of the top three calories
+	// The top three calories stored in descending order
+	var maxCalories [3]int = [3]int{0, 0, 0}
 	var currentCalories int = 0
-	h := &IntMaxHeap{}
-	heap.Init(h)
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
-			heap.Push(h, currentCalories)
+			updateTop3(currentCalories, &maxCalories)
 			currentCalories = 0
 		} else {
 			calories, err := strconv.Atoi(line)
@@ -182,10 +153,8 @@ func topKCaloriesSum(file *os.File, k int) int {
 		}
 	}
 
-	heap.Push(h, currentCalories)
-
-	topKSum := getTopKSum(h, k)
-	return topKSum
+	updateTop3(currentCalories, &maxCalories)
+	return maxCalories
 }
 
 func partTwo(filePath string) {
@@ -194,10 +163,11 @@ func partTwo(filePath string) {
 		log.Fatal(err)
 	}
 	defer file.Close()
+	
+	top3Calories := getTopThreeCalories(file)
+	top3Sum := top3Calories[0] + top3Calories[1] + top3Calories[2]
 
-	top3CaloriesSum := topKCaloriesSum(file, 3)
-
-	fmt.Println("Top 3 calories:", top3CaloriesSum)
+	fmt.Println("Top 3 calories:", top3Sum)
 }
 
 func main() {
