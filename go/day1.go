@@ -88,30 +88,63 @@ func updateMaxCalories(calories int, maxCalories *int) {
 	}
 }
 
+func getMaxCalories(file *os.File) int {
+	scanner := bufio.NewScanner(file)
+	var calories int
+	var maxCalories int
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			updateMaxCalories(calories, &maxCalories)
+			calories = 0
+		} else {
+			calorie, err := strconv.Atoi(line)
+			if err != nil {
+				log.Fatal(err)
+			}
+			calories += calorie
+		}
+	}
+	updateMaxCalories(calories, &maxCalories)
+	return maxCalories
+}
 
-func main() {
-
-	// Open the file, check for errors
-	file, err := os.Open("day1input.txt")
+func partOne(filePath string) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
+	maxCalories := getMaxCalories(file)
+	fmt.Println("Max calories:", maxCalories)
+}
 
-	var currentCalories int
-	var maxCalories int = 0
+func updateTop3(calories int, maxCalories *[3]int) {
+	if calories > maxCalories[0] {
+		maxCalories[2] = maxCalories[1]
+		maxCalories[1] = maxCalories[0]
+		maxCalories[0] = calories
+	} else if calories > maxCalories[1] {
+		maxCalories[2] = maxCalories[1]
+		maxCalories[1] = calories
+	} else if calories > maxCalories[2] {
+		maxCalories[2] = calories
+	}
+}
 
-	// Read file line by line
+func getTopThreeCalories(file *os.File) [3]int {
 	scanner := bufio.NewScanner(file)
+
+	// The top three calories stored in descending order
+	var maxCalories [3]int = [3]int{0, 0, 0}
+	var currentCalories int = 0
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
-			// Blank line, update maximum calories
-			// and reset running total to 0
-			updateMaxCalories(currentCalories, &maxCalories)
+			updateTop3(currentCalories, &maxCalories)
 			currentCalories = 0
 		} else {
-			// Add the calories to the current total
 			calories, err := strconv.Atoi(line)
 			if err != nil {
 				log.Fatal(err)
@@ -120,9 +153,28 @@ func main() {
 		}
 	}
 
-	// Update maxCalories one last time,
-	// if there is no blank line at the end of the file
-	updateMaxCalories(currentCalories, &maxCalories)
+	updateTop3(currentCalories, &maxCalories)
+	return maxCalories
+}
 
-	fmt.Println("Max calories:", maxCalories)
+func partTwo(filePath string) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	
+	top3Calories := getTopThreeCalories(file)
+	top3Sum := top3Calories[0] + top3Calories[1] + top3Calories[2]
+
+	fmt.Println("Top 3 calories:", top3Sum)
+}
+
+func main() {
+	fmt.Println("-------------- Part One -------------")
+	partOne("day1input.txt")
+	fmt.Println("Part 1 complete")
+	fmt.Println("-------------- Part Two -------------")
+	partTwo("day1input.txt")
+	fmt.Println("Part 2 complete")
 }
