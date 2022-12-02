@@ -182,14 +182,12 @@ func partTwo(rounds []pair, scoreMap strStrInt) {
 }
 
 func main() {
-	// File IO
 	file, err := os.Open("day2input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	// Read the file line by line
 	var player1Move string
 	var player2Move string
 	rounds := make([]pair, 0)
@@ -204,7 +202,6 @@ func main() {
 		player1Move = line[0:1]
 		player2Move = line[2:]
 
-		// add {player1Move, player2Move} to rounds
 		round := pair{player1Move, player2Move}
 		rounds = append(rounds, round)
 	}

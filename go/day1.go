@@ -69,7 +69,6 @@ The sum of the Calories carried by these three elves is 45000.
 
 Find the top three Elves carrying the most Calories. How many Calories are those Elves carrying in total?
 
-
 */
 
 package main
@@ -83,7 +82,7 @@ import (
 	"strconv"
 )
 
-// IntMaxHeap is a max heap of ints
+// Heap implementation taken from the docs & modified
 type IntMaxHeap []int
 
 func (h IntMaxHeap) Len() int           { return len(h) }
@@ -103,8 +102,8 @@ func (h *IntMaxHeap) Pop() any {
 }
 
 // Leaving these functions in just to show that
-// we don't need a heap if we just want to find the maximum
-// and it can be done in O(1) space instead of O(n) space in case of a heap
+// we don't need a heap if we just want to find the maximum calories
+// and that it can be done in O(1) space rather than O(n) space (if heaps were used)
 func updateMaxCalories(calories int, maxCalories *int) {
 	if calories > *maxCalories {
 		*maxCalories = calories
