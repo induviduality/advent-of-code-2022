@@ -117,11 +117,12 @@ func getPriority(item string) int {
 	return int(item[0]) - 96
 }
 
-func checkPriority() {
-	var letters string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	for _, letter := range letters {
-		fmt.Println(string(letter), " ", getPriority(string(letter)))
+func getSetPriorityTotal(set Set) int {
+	priority := 0
+	for item := range set {
+		priority += getPriority(item)
 	}
+	return priority
 }
 
 func setIntersection(set1, set2 Set) Set {
@@ -150,9 +151,22 @@ func partOne(rucksacks [][]string) {
 		set1 := getSet(firstHalf)
 		set2 := getSet(secondHalf)
 		intersection := setIntersection(set1, set2)
-		for item := range intersection {
-			prioritySum += getPriority(item)
-		}
+		prioritySum += getSetPriorityTotal(intersection)
+	}
+
+	fmt.Println("Sum of priorities: ", prioritySum)
+}
+
+func partTwo(rucksacks [][]string) {
+	prioritySum := 0
+	for i := 0; i < len(rucksacks); i += 3 {
+		set1 := getSet(rucksacks[i])
+		set2 := getSet(rucksacks[i+1])
+		set3 := getSet(rucksacks[i+2])
+
+		intersection := setIntersection(set1, set2)
+		intersection = setIntersection(intersection, set3)
+		prioritySum += getSetPriorityTotal(intersection)
 	}
 
 	fmt.Println("Sum of priorities: ", prioritySum)
@@ -176,5 +190,9 @@ func main() {
 		rucksacks = append(rucksacks, rucksack)
 	}
 
+	fmt.Println("------- Part One -------")
 	partOne(rucksacks)
+	fmt.Println()
+	fmt.Println("------- Part Two -------")
+	partTwo(rucksacks)
 }
