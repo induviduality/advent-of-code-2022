@@ -116,34 +116,21 @@ func isFullyContained(a rangePair, b rangePair) bool {
 	return aInB || bInA
 }
 
-func partOne(input []string) int {
-	fullyContained := 0
+func getSolution(input []string, part int) int {
+	totalSections := 0
 	for _, line := range input {
 		sections := strings.Split(line, ",")
 		section1 := parseRangePair(sections[0])
 		section2 := parseRangePair(sections[1])
 
-		if isFullyContained(section1, section2) {
-			fullyContained++
+		if part == 1 && isFullyContained(section1, section2) {
+			totalSections++
+		} else if part == 2 && hasOverlap(section1, section2) {
+			totalSections++
 		}
 	}
 
-	return fullyContained
-}
-
-func partTwo(input []string) int {
-	overlaps := 0
-	for _, line := range input {
-		sections := strings.Split(line, ",")
-		section1 := parseRangePair(sections[0])
-		section2 := parseRangePair(sections[1])
-
-		if hasOverlap(section1, section2) {
-			overlaps++
-		}
-	}
-
-	return overlaps
+	return totalSections
 }
 
 func main() {
@@ -160,6 +147,6 @@ func main() {
 		input = append(input, line)
 	}
 
-	fmt.Println("Number of fully contained sections: ", partOne(input))
-	fmt.Println("Number of overlapping sections: ", partTwo(input))
+	fmt.Println("Number of fully contained sections: ", getSolution(input, 1))
+	fmt.Println("Number of overlapping sections: ", getSolution(input, 2))
 }
