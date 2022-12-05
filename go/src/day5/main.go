@@ -95,7 +95,7 @@ import (
 )
 
 
-// Stack is a stack implementation
+/// Implementing a stack
 type Stack struct {
 	items []interface{}
 }
