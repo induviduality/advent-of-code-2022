@@ -134,7 +134,7 @@ func getSolution(input []string, part int) int {
 }
 
 func main() {
-	file, err := os.Open("day4input.txt")
+	file, err := os.Open("../../input/day4.txt")
 	if err != nil {
 		log.Fatal(err)
 	}

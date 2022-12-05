@@ -173,7 +173,7 @@ func partTwo(rucksacks [][]string) {
 }
 
 func main() {
-	file, err := os.Open("day3input.txt")
+	file, err := os.Open("../../input/day3.txt")
 	if err != nil {
 		fmt.Println(err)
 		return

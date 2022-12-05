@@ -191,12 +191,12 @@ func partTwo(filePath string, k int) {
 
 func main() {
 	fmt.Println("Part One ----------------------------")
-	partOne("day1input.txt")
+	partOne("../../input/day1.txt")
 	fmt.Println("-------------------------------------")
 	fmt.Println("Part 1, but with heaps --------------")
-	partTwo("day1input.txt", 1)
+	partTwo("../../input/day1.txt", 1)
 	fmt.Println("-------------------------------------")
 	fmt.Println("Part Two ----------------------------")
-	partTwo("day1input.txt", 3)
+	partTwo("../../input/day1.txt", 3)
 	fmt.Println("-------------------------------------")
 }

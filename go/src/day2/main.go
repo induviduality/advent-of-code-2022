@@ -182,7 +182,7 @@ func partTwo(rounds []pair, scoreMap strStrInt) {
 }
 
 func main() {
-	file, err := os.Open("day2input.txt")
+	file, err := os.Open("../../input/day2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
