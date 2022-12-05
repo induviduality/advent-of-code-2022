@@ -150,13 +150,28 @@ func (s *Stack) Values() []interface{} {
 	return s.items
 }
 
+// reverseStack reverses the stack
+func reverseStack(s *Stack) {
+	var reversed Stack
+	for !s.IsEmpty() {
+		item, _ := s.Pop()
+		reversed.Push(item)
+	}
+	*s = reversed
+}
 
-func getArguments(s string) [3]int {
+func reverseStacks(stacks *[]Stack) {
+	for i := 0; i < len(*stacks); i++ {
+		reverseStack(&(*stacks)[i])
+	}
+}
+
+func getArguments(s string) (int, int, int) {
 	parsed := strings.Split(s, " ")
 	from, _ := strconv.Atoi(parsed[3])
 	to, _ := strconv.Atoi(parsed[5])
 	quantity, _ := strconv.Atoi(parsed[1])
-	return [3]int{quantity, from, to}
+	return quantity, from, to
 }
 
 func addBoxesByLines(line string, stacks *[]Stack) {
@@ -171,6 +186,7 @@ func addBoxesByLines(line string, stacks *[]Stack) {
 }
 
 func printStack(stack Stack) {
+	fmt.Printf("Top -> ")
 	for !stack.IsEmpty() {
 		item, _ := stack.Pop()
 		fmt.Printf("%s ", item)
@@ -202,7 +218,59 @@ func buildStacks(stackInput []string) []Stack {
 	for i := 0; i < n - 1; i++ {
 		addBoxesByLines(stackInput[i], &stacks)
 	}
+	reverseStacks(&stacks)
 	return stacks
+}
+
+func moveItems(quantity int, from int, to int, stacks *[]Stack) {
+	for i := 0; i < quantity; i++ {
+		item, _ := (*stacks)[from - 1].Pop()
+		(*stacks)[to - 1].Push(item)
+	}
+}
+
+func moveItemsWithoutReversing(quantity int, from int, to int, stacks *[]Stack) {
+	auxStack := NewStack()
+	for i := 0; i < quantity; i++ {
+		item, _ := (*stacks)[from - 1].Pop()
+		auxStack.Push(item)
+	}
+
+	for i := 0; i < quantity; i++ {
+		item, _ := auxStack.Pop()
+		(*stacks)[to - 1].Push(item)
+	}
+}
+
+func rearrange(rearrangements []string, stacks *[]Stack, part int) {
+	for _, rearrangement := range rearrangements {
+		quantity, from, to := getArguments(rearrangement)
+		if part == 1 {
+			moveItems(quantity, from, to, stacks)
+		} else if part == 2 {
+			moveItemsWithoutReversing(quantity, from, to, stacks)
+		} else {
+			log.Fatal("Invalid part")
+		}
+	}
+
+	// uncomment to see the rearrangement result
+	// printStacks(*stacks)
+}
+
+func getTops(stacks *[]Stack) string {
+	var tops string = ""
+	for i := 0; i < len(*stacks); i++ {
+		item, _ := (*stacks)[i].Peek()
+		tops += item.(string)
+	}
+	return tops
+}
+
+func getSolution(rearrangements []string, stackInput []string, part int) string {
+	stacks := buildStacks(stackInput)
+	rearrange(rearrangements, &stacks, part)
+	return getTops(&stacks)
 }
 
 func main() {
@@ -234,6 +302,8 @@ func main() {
 		rearrangements = append(rearrangements, line)
 	}
 
-	stacks := buildStacks(stackInput)
-	printStacks(stacks)
+	fmt.Println("Part One ------------------")
+	fmt.Println("Tops of stacks: ", getSolution(rearrangements, stackInput, 1))
+	fmt.Println("Part Two ------------------")
+	fmt.Println("Tops of stacks: ", getSolution(rearrangements, stackInput, 2))
 }
