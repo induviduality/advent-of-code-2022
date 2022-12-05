@@ -81,8 +81,8 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"math"
+	"os"
 )
 
 type coordinates [2]int
@@ -103,68 +103,98 @@ var directions = map[string]coordinates{
 	"northwest": {-1, 1},
 }
 
+// use enums to make it easier to turn in degrees
+// use iota to make it easier to turn in degrees
+type direction int
 
-var direction2degree = map[string]int{
-	"north": 0,
-	"south": 180,
-	"east": 90,
-	"west": 270,
-	"northeast": 45,
-	"northwest": 315,
-	"southeast": 135,
-	"southwest": 225,
+const (
+	north = iota
+	northeast
+	east
+	southeast
+	south
+	southwest
+	west
+	northwest
+)
+
+var directionsOffset = map[direction]coordinates{
+	north:     {0, 1},
+	northeast: {1, 1},
+	east:      {1, 0},
+	southeast: {1, -1},
+	south:     {0, -1},
+	southwest: {-1, -1},
+	west:      {-1, 0},
+	northwest: {-1, 1},
 }
 
-var degrees2direction = map[int]string{
-	0: "north",
-	180: "south",
-	90: "east",
-	270: "west",
-	45: "northeast",
-	315: "northwest",
-	135: "southeast",
-	225: "southwest",
+func degrees2turns(degrees int) int {
+	return degrees / 45
 }
 
-var allPlaces = []coordinates{}
-
-func turn(currentDirection string, turn int) string {
-	degrees := direction2degree[currentDirection]
-	degrees += turn
+func turn(current *direction, degrees int) {
+	degrees %= 360
 	if degrees < 0 {
 		degrees += 360
 	}
-	degrees = degrees % 360
-	return degrees2direction[degrees]
+	*current += direction(degrees / 45)
+	*current %= 8
 }
 
-func move(santa coordinates, direction string, number int) coordinates {
-	directionCoordinates := directions[direction]
-	santa[0] += directionCoordinates[0] * number
-	santa[1] += directionCoordinates[1] * number
-	allPlaces = append(allPlaces, santa)
-	return santa
+func walk(santa *coordinates, current direction, number int, path *[]coordinates) {
+	for i := 0; i < number; i++ {
+		santa[0] += directionsOffset[current][0]
+		santa[1] += directionsOffset[current][1]
+		*path = append(*path, *santa)
+	}
+}
+
+func jump(santa *coordinates, current direction, number int, path *[]coordinates) {
+	santa[0] += directionsOffset[current][0] * number
+	santa[1] += directionsOffset[current][1] * number
+}
+
+func manhattanDist(x1 int, x2 int, y1 int, y2 int) float64 {
+	return math.Abs(float64(x1-x2)) + math.Abs(float64(y1-y2))
+}
+
+func printPaths(paths [][]coordinates) {
+	for _, path := range paths {
+		fmt.Println(path)
+	}
 }
 
 func partOne(instructions []instruction) {
-	currentDirection := "north"
+	var currentDirection direction = north
 	santa := coordinates{0, 0}
+	allPaths := [][]coordinates{}
+	path := []coordinates{}
 
 	for _, instruction := range instructions {
 		if instruction.command == "draai" {
-			currentDirection = turn(currentDirection, instruction.number)
+			turn(&currentDirection, instruction.number)
 		} else if instruction.command == "loop" {
-			santa = move(santa, currentDirection, instruction.number)
+			walk(&santa, currentDirection, instruction.number, &path)
 		} else if instruction.command == "spring" {
-			// appending {-1, -1} to mark which steps are jumps
-			// {-1, -1} will be removed in the python script
-			allPlaces = append(allPlaces, coordinates{-1, -1})
-			santa = move(santa, currentDirection, instruction.number)
+			jump(&santa, currentDirection, instruction.number, &path)
+			allPaths = append(allPaths, path)
+			path = []coordinates{}
+			path = append(path, santa)
 		}
 	}
+	allPaths = append(allPaths, path)
 
 	fmt.Println("Santa is at", santa)
-	fmt.Println("Manhattan distance is", math.Abs(float64((santa[0])) + math.Abs(float64(santa[1] - 0))))
+	fmt.Println("Manhattan distance is", manhattanDist(santa[0], 0, santa[1], 0))
+
+	// Used it to print all the paths traversed by Santa
+	// in order to find the word in the snow
+	// by passing it to the Python program
+	//
+	// fmt.Println()
+	// fmt.Println("All Paths:")
+	// printPaths(allPaths)
 }
 
 func main() {
@@ -173,7 +203,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
 
 	var command string
 	var number int
@@ -186,10 +215,4 @@ func main() {
 	}
 
 	partOne(instructions)
-
-	// Used the below line to get the answer to part 2
-	// by getting all the places Santa visited
-	// Then I copied over the coordinates to the python code
-	// and plotted the coordinates on a graph
-	// fmt.Println(allPlaces)
 }
