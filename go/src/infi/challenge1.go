@@ -103,10 +103,10 @@ var directions = map[string]coordinates{
 	"northwest": {-1, 1},
 }
 
-// use enums to make it easier to turn in degrees
-// use iota to make it easier to turn in degrees
 type direction int
 
+// Using enums to handle the directions and the turns
+// makes it elegant and easy to understand.
 const (
 	north = iota
 	northeast
